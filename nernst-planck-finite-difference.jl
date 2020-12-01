@@ -86,7 +86,7 @@ H_aux .= H_0
 OH_aux .= OH_0
 φ_aux[1] = φ_0
 
-# Solve eq. system, measuring time
+# Solve eq. system
 
 # Solve Laplace equation
 for k = 1:it_max/2
@@ -118,7 +118,6 @@ while it < time_it
     OH_aux[1] = OH_aux[2]
 
     if it % floor(1/dt/20) == 0 
-        plot!(H)
         println(stdout, "time:", it*dt, " s")
         
         println("H+:")
@@ -150,9 +149,8 @@ while it < time_it
     OH[1] = OH[2]
 
     if it % floor(1/dt/20) == 0 
-        plot!(H)
         println(stdout, "time:", it*dt, " s")
-        
+
         println("H+:")
         println(H)
 

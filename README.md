@@ -13,14 +13,14 @@ P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". E
                  + c_OH * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
                  + k_wb * H2O - k_wf * H * OH
 
-##   Initial condition
+##   Initial conditions
         H(0,x) = H_0
         OH(0,x) = OH_0
         φ(0,x) = φ_0
 
 ##   Boundary conditions
 
-Boundary conditions have been simplified, replacing Butler-Volmer equations with a linear approximation.
+Butler-Volmer equations have been replaced by a linear approximation.
 
         H(t,0) = H_anode_rate * t
         dH(t,n)/dx = 0
