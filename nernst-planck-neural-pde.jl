@@ -37,8 +37,8 @@ using NeuralPDE, Flux, ModelingToolkit, GalacticOptim, Optim, DiffEqFlux
 @derivatives Dxx''~x
 
 # Electrochemical parameters
-t_max = 50
-x_max = 0.01
+t_max = 50.0 # s
+x_max = 0.01 # m
 H_anode_rate = 4.2 # mol m^-3 s^-1
 OH_cathode_rate = 5 # mol m^-3 s^-1
 H_0 = 1e-4 # mol m^-3
@@ -84,13 +84,13 @@ bcs = [ H(0,x) ~ H_0,
         OH(t,0.01) ~ OH_0,
         φ(t,0.01) ~ 0]
 
-
 # Space and time domains
 domains = [t ∈ IntervalDomain(0.0,t_max),
            x ∈ IntervalDomain(0.0,x_max)]
 
 # Discretization
 dx = 2e-4
+dt = 5e-2
 
 # Neural network
 dim = length(domains)
@@ -98,7 +98,7 @@ output = length(eqs)
 chain = FastChain(FastDense(dim,16,Flux.σ),FastDense(16,16,Flux.σ),FastDense(16,output))
 
 strategy = GridTraining()
-discretization = PhysicsInformedNN(dx,chain,strategy=strategy)
+discretization = NeuralPDE.PhysicsInformedNN(dx,chain,strategy=strategy)
 
 pde_system = PDESystem(eqs,bcs,domains,[x,t],[H,OH,φ])
 prob = discretize(pde_system,discretization)
