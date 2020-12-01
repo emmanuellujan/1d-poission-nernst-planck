@@ -11,15 +11,16 @@
 #                 + c_OH * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
 #                 + k_wb * H2O - k_wf * H * OH
 #
-#   Initial condition: 
+#   Initial conditions:
 #        H(0,x) = H_0
 #        OH(0,x) = OH_0
 #        φ(0,x) = φ_0
 #
 #   Boundary conditions:
+#
 #        H(t,0) = H_anode_rate * t
-#        H(t,n) = H_0
-#        OH(t,0) = OH_0
+#        dH(t,n)/dx = 0
+#        dOH(t,0)/dx = 0
 #        OH(t,n) = OH_cathode_rate * t
 #        φ(t,0) = φ_0
 #        φ(t,n) = 0

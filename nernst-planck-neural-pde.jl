@@ -10,15 +10,16 @@
 #                 + c_OH * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
 #                 + k_wb * H2O - k_wf * H * OH
 #
-#   Initial condition: 
+#   Initial conditions:
 #        H(0,x) = H_0
 #        OH(0,x) = OH_0
 #        φ(0,x) = φ_0
 #
 #   Boundary conditions:
+#
 #        H(t,0) = H_anode_rate * t
-#        H(t,n) = H_0
-#        OH(t,0) = OH_0
+#        dH(t,n)/dx = 0
+#        dOH(t,0)/dx = 0
 #        OH(t,n) = OH_cathode_rate * t
 #        φ(t,0) = φ_0
 #        φ(t,n) = 0
@@ -69,20 +70,20 @@ c_OH = z_OH * D_OH * F / (R * T)
 #                    + k_wb * H2O - k_wf * H(t,x) * OH(t,x)
 #      ]
 eqs = [
-        0. ~ σ_0 * Dxx(φ(t,x)),
         Dt(H(t,x)) ~ Dxx(H(t,x)) + c_H * Dx(H(t,x)) * φ(t,x) + c_H * H(t,x) * Dxx(φ(t,x)) + k_wb * H2O - k_wf * H(t,x) * OH(t,x),
-        Dt(OH(t,x)) ~ Dxx(OH(t,x)) + c_H * Dx(OH(t,x)) * φ(t,x) + c_H * OH(t,x) * Dxx(φ(t,x)) + k_wb * H2O - k_wf * H(t,x) * OH(t,x)
+        Dt(OH(t,x)) ~ Dxx(OH(t,x)) + c_H * Dx(OH(t,x)) * φ(t,x) + c_H * OH(t,x) * Dxx(φ(t,x)) + k_wb * H2O - k_wf * H(t,x) * OH(t,x),
+        0. ~ σ_0 * Dxx(φ(t,x)),
       ]
 
 bcs = [ H(0,x) ~ H_0,
         OH(0,x) ~ OH_0,
-        φ(0,x) ~ φ_0,
+        φ(0,x) ~ 0.0,
         H(t,0) ~ H_anode_rate * t,
-        OH(t,0) ~ H_anode_rate * t,
+        Dx(OH(t,0)) ~ 0.0,
         φ(t,0) ~ φ_0,
-        H(t,0.01) ~ H_0,
-        OH(t,0.01) ~ OH_0,
-        φ(t,0.01) ~ 0]
+        Dx(H(t,x_max)) ~ 0.0,
+        OH(t,x_max) ~ H_anode_rate * t,
+        φ(t,x_max) ~ 0.0]
 
 # Space and time domains
 domains = [t ∈ IntervalDomain(0.0,t_max),
@@ -90,7 +91,7 @@ domains = [t ∈ IntervalDomain(0.0,t_max),
 
 # Discretization
 dx = 2e-4
-dt = 5e-2
+dt = 5e-9
 
 # Neural network
 dim = length(domains)
