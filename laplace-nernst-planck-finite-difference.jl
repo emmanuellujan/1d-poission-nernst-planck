@@ -1,6 +1,5 @@
 ################################################################################
-#   In this code a 1D Nersnt-Plack/Laplace system is solved using
-#   the finite difference method
+#   This code solves a 1D Laplace-Nernst-Planck system using finite difference
 #
 #   Equations:
 #        d2φ/dx2 = 0
@@ -14,14 +13,13 @@
 #   Initial conditions:
 #        H(0,x) = H_0
 #        OH(0,x) = OH_0
-#        φ(0,x) = φ_0
+#        φ(0,x) = 0
 #
 #   Boundary conditions:
-#
-#        H(t,0) = H_anode_rate * t
+#        H(t,0) = H_anode_rate * t + H_0
 #        dH(t,n)/dx = 0
 #        dOH(t,0)/dx = 0
-#        OH(t,n) = OH_cathode_rate * t
+#        OH(t,n) = OH_cathode_rate * t + OH_0
 #        φ(t,0) = φ_0
 #        φ(t,n) = 0
 #
@@ -34,7 +32,7 @@
 time_max = 50 # s
 
 # Delta t [s]
-dt = 5e-9
+dt = 5e-9 # s
 
 # Time iterations
 time_it = floor(Int,time_max/dt)
@@ -50,6 +48,9 @@ n = floor(Int,x_max/dx)
 
 # No. of convergence iterations
 it_max = 10000
+
+# No. of iterations to print results
+it_print = floor(1/dt/20)
 
 # Electrochemical parameters
 H_anode_rate = 4.2 # mol m^-3 s^-1
@@ -101,6 +102,11 @@ end
 it = 1
 while it < time_it
 
+    # One each iteration two time steps are computed to avoid copying variables
+
+    # First time step
+
+    # Solve Nernst-Planck equation
     for i = 2:n-1
         H_aux[i] =  (D_H * (H[i+1]-2*H[i]+H[i-1])/(dx^2)
                     + c_H * (H[i+1]-H[i])/(dx) * (φ[i+1]-φ[i-1])/(2*dx)
@@ -113,14 +119,18 @@ while it < time_it
                      + k_wb * H2O - k_wf * H[i] * OH[i]
                      ) * dt + OH[i]
     end
-    H_aux[1] = H_anode_rate * it * dt
-    OH_aux[n] = OH_cathode_rate * it * dt
+    H_aux[1] = H_anode_rate * it * dt + H_0
+    OH_aux[n] = OH_cathode_rate * it * dt + OH_0
     H_aux[n] = H_aux[n-1]
     OH_aux[1] = OH_aux[2]
 
-    if it % floor(1/dt/20) == 0 
+    # Print results
+    if it % it_print == 0 
         println(stdout, "time:", it*dt, " s")
-        
+
+        println("φ:")
+        println(φ)
+
         println("H+:")
         println(H)
 
@@ -132,6 +142,9 @@ while it < time_it
     
     global it += 1
 
+    # Second time step
+
+    # Solve Nernst-Planck equation
     for i = 2:n-1
         H[i] =  (D_H * (H_aux[i+1]-2*H_aux[i]+H_aux[i-1])/(dx^2)
                  + c_H * (H_aux[i+1]-H_aux[i])/(dx) * (φ_aux[i+1]-φ_aux[i-1])/(2*dx)
@@ -144,13 +157,17 @@ while it < time_it
                   + k_wb * H2O - k_wf * H_aux[i] * OH_aux[i]
                   ) * dt + OH_aux[i]
     end
-    H[1] = H_anode_rate * it * dt
-    OH[n] = OH_cathode_rate * it * dt
+    H[1] = H_anode_rate * it * dt + H_0
+    OH[n] = OH_cathode_rate * it * dt + OH_0
     H[n] = H[n-1]
     OH[1] = OH[2]
 
-    if it % floor(1/dt/20) == 0 
+    # Print results
+    if it % it_print == 0 
         println(stdout, "time:", it*dt, " s")
+
+        println("φ:")
+        println(φ)
 
         println("H+:")
         println(H)
