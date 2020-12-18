@@ -5,7 +5,9 @@ P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". E
 
 1D Poisson-Nernst-Planck and Laplace-Nernst-Planck
 
-###   Equations
+###   Model
+
+####   Equations
         d2φ/dx2 = -F/epsilon * ( z_H * H + z_OH * OH)   or  d2φ/dx2 = 0 
         dH/dt =  D_H * d2H/dx2 
                  + c_H * ( dH/dx * dφ/dx + H * d2φ/dx2 )
@@ -14,12 +16,12 @@ P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". E
                  + c_OH * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
                  + k_wb * H2O - k_wf * H * OH
 
-###   Initial conditions
+####   Initial conditions
         H(0,x) = H_0
         OH(0,x) = OH_0
         φ(0,x) = 0
 
-###   Boundary conditions
+####   Boundary conditions
 
 Butler-Volmer equations have been replaced by a linear approximation.
 
@@ -30,9 +32,10 @@ Butler-Volmer equations have been replaced by a linear approximation.
         φ(t,0) = φ_0
         φ(t,n) = 0
         
-### Install Julia and required packages 
+### Installation and running
 
 1) Download Julia from https://julialang.org/downloads/
+
     E.g.
     ```
         $ wget https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz
