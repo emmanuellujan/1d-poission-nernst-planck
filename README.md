@@ -73,6 +73,7 @@ Butler-Volmer equations have been replaced by a linear approximation.
 
 4) Run
     ```
+        $ cd 1d-poission-nernst-planck
         $ julia poisson-laplace-nernst-planck-neuralpde.jl
         $ julia laplace-nernst-planck-neuralpde.jl
         $ julia poisson-nernst-planck-finite-difference.jl
