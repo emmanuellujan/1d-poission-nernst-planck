@@ -1,7 +1,8 @@
-## [WIP] 1D Poisson-Nernst-Planck and Laplace-Nernst-Planck equations using NeuralPDE and the Finite Difference method
+## [WIP] 1D Poisson/Laplace-Nernst-Planck equations solution using NeuralPDE and the Finite Difference method
 
 
 ###   Mathematical model
+
 
 ####   Equations
         d2φ/dx2 = -F/epsilon * ( z_H * H + z_OH * OH)   or  d2φ/dx2 = 0 
@@ -36,7 +37,7 @@ P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". E
 - "Electroterapia y Electroporación en el tratamiento de tumores: modelos teóricos y experimentales". P. Turjanski. Departamento de Computación. Facultad de Ciencias Exactas y Naturales. Universidad de Buenos Aires. 2011.
 
         
-### Installation and running
+### Installation and running in GNU/Linux
 
 1) Download Julia from https://julialang.org/downloads/
 
