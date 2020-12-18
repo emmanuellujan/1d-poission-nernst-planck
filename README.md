@@ -1,11 +1,7 @@
-## [WIP] These codes solve 1D Poisson-Nernst-Planck and Laplace-Nernst-Planck equations using NeuralPDE and the Finite Difference method
+## [WIP] 1D Poisson-Nernst-Planck and Laplace-Nernst-Planck equations using NeuralPDE and the Finite Difference method
 
-The equation system is based on "pH front tracking in the electrochemical treatment (EChT) of tumors: Experiments and simulations", 
-P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". Electrochimica Acta 54 (2009) 6199–6206.
 
-1D Poisson-Nernst-Planck and Laplace-Nernst-Planck
-
-###   Model
+###   Mathematical model
 
 ####   Equations
         d2φ/dx2 = -F/epsilon * ( z_H * H + z_OH * OH)   or  d2φ/dx2 = 0 
@@ -31,6 +27,14 @@ Butler-Volmer equations have been replaced by a linear approximation.
         OH(t,n) = OH_cathode_rate * t + OH_0
         φ(t,0) = φ_0
         φ(t,n) = 0
+        
+#### References 
+
+- "pH front tracking in the electrochemical treatment (EChT) of tumors: Experiments and simulations", 
+P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". Electrochimica Acta 54 (2009) 6199–6206.
+
+- "Electroterapia y Electroporación en el tratamiento de tumores: modelos teóricos y experimentales". P. Turjanski. Departamento de Computación. Facultad de Ciencias Exactas y Naturales. Universidad de Buenos Aires. 2011.
+
         
 ### Installation and running
 
