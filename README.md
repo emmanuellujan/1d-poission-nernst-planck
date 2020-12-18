@@ -29,7 +29,49 @@ Butler-Volmer equations have been replaced by a linear approximation.
         OH(t,n) = OH_cathode_rate * t + OH_0
         φ(t,0) = φ_0
         φ(t,n) = 0
+        
+### Install Julia and required packages 
 
-###   How to run
-        julia poisson-nernst-planck-finite-difference.jl
-        julia laplace-nernst-planck-finite-difference.jl
+1) Download Julia from https://julialang.org/downloads/
+    E.g.
+    ```
+        $ wget https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.3-linux-x86_64.tar.gz
+     ```
+2) Extract file
+     ```
+        $ tar xvzf  julia-1.5.3-linux-x86_64.tar.gz
+     ```
+3) Copy to /opt and create link
+     ```
+        $ sudo mv  ./julia-1.5.3 /opt/
+        $ sudo ln -s /opt/julia-1.5.3/bin/julia /usr/local/bin/julia
+     ```
+4) Install required packets
+    ```
+        $ julia
+        julia> import Pkg
+        julia> Pkg.add("NeuralPDE")
+        julia> Pkg.add("Flux")
+        julia> Pkg.add("ModelingToolkit")
+        julia> Pkg.add("GalacticOptim")
+        julia> Pkg.add("Optim")
+        julia> Pkg.add("DiffEqFlux")
+        julia> Pkg.add("Plots")
+        julia> Pkg.add("Quadrature")
+        julia> Pkg.add("Cubature")
+        julia> Pkg.add("Cuba")
+        julia> Pkg.add("LaTeXStrings")
+    ```
+     
+4) Clone project directory
+    ```
+        $ git clone https://github.com/emmanuellujan/1d-poission-nernst-planck.git
+     ```
+
+4) Run
+    ```
+        $ julia poisson-laplace-nernst-planck-neuralpde.jl
+        $ julia laplace-nernst-planck-neuralpde.jl
+        $ julia poisson-nernst-planck-finite-difference.jl
+        $ julia laplace-nernst-planck-finite-difference.jl
+    ```
