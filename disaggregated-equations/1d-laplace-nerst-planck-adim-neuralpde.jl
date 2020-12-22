@@ -48,8 +48,8 @@ using Quadrature, Cubature, Cuba
 # Parameters
 
 t_ref = 1.0 # s
-x_ref = 3.0 # cm
-C_ref_1 = 1e-4 # M
+x_ref = 4.0 # cm
+C_ref_1 = 1e-7 # M
 C_ref_2 = 0.16 # M
 Phi_ref = 1.0 # V
 
@@ -58,10 +58,10 @@ z_Cl = -1.0
 z_H = 1.0
 z_OH = -1.0
 
-D_Na = 1.33e-5 # cm^2 s^−1
-D_Cl = 2.03e-5 # cm^2 s^−1
-D_H = 9.31e-5 # cm^2 s^-1
-D_OH = 5.26e-5 # cm^2 s^−1 
+D_Na = 0.89e-5 # 1.33e-5 # cm^2 s^−1
+D_Cl = 1.36e-5 # 2.03e-5 # cm^2 s^−1
+D_H = 6.25e-5 # 9.31e-5 # cm^2 s^-1
+D_OH = 3.52e-5 # 5.26e-5 # cm^2 s^−1 
 
 u_Na = 4.5e-5 # cm^2 V^-1 s^-1
 u_Cl = 6.8e-5 # cm^2 V^-1 s^-1
@@ -69,16 +69,16 @@ u_H = 3.24e-4 # cm^2 V^-1 s^-1
 u_OH = 1.8e-4 # cm^2 V^-1 s^-1
 
 t_max = 0.01 / t_ref # adim
-x_max = 3.0 / x_ref # adim 
+x_max = 4.0 / x_ref # adim 
 Na_0 = 0.16 / C_ref_2 # adim
 Cl_0 = 0.16 / C_ref_2 # adim
-H_0 = 1e-4 / C_ref_1 # adim
-OH_0 = 1e-4 / C_ref_1 # adim
+H_0 = 1e-7 / C_ref_1 # adim
+OH_0 = 1e-7 / C_ref_1 # adim
 H2O_0 = 55.5 / C_ref_1 # adim
-Phi_0 = 1.0 / Phi_ref # adim
+Phi_0 = 4.0 / Phi_ref # adim
 
-k_wf = 2.4917e8 # m^3 mol^-1 s^-1 revisar
-k_wb = 2.7e-5 # s^-1  revisar
+k_wf = 1.5e11 # 2.4917e8 # M s
+k_wb = 2.7e-5 # s^-1 
 
 Na_anode = 0.0 # adim
 Na_cathode = 2.0 * Na_0 # adim
@@ -178,7 +178,7 @@ pde_system = PDESystem(eqs,bcs,domains,[t,x],[Na,Cl])
 prob = discretize(pde_system,discretization)
 
 cb = function (p,l)
-    println("Current loss is: $l, $p")
+    println("Current loss is: $l")
     return false
 end
 
