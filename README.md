@@ -6,28 +6,37 @@
 
 ####   Equations
         d2φ/dx2 = -F/epsilon * ( z_H * H + z_OH * OH)   or  d2φ/dx2 = 0 
-        dH/dt =  D_H * d2H/dx2 
-                 + c_H * ( dH/dx * dφ/dx + H * d2φ/dx2 )
+        dNa/dt =  ( 1.0 / Pe_Na ) * d2Na/dx2 
+                 + z_Na / ( abs(z_Na) * M_Na ) * ( dNa/dx * dφ/dx + Na * d2φ/dx2 )
+        dCl/dt = ( 1.0 / Pe_Cl ) * d2Cl/dx2
+                 + z_Cl / ( abs(z_Cl) * M_Cl ) * ( dCl/dx * dφ/dx + Cl * d2φ/dx2 )
+        dH/dt =  ( 1.0 / Pe_H ) * d2H/dx2 
+                 + z_H / ( abs(z_H) * M_H ) * ( dH/dx * dPhi/dx + H * d2φ/dx2 )
                  + k_wb * H2O - k_wf * H * OH
-        dOH/dt = D_OH * d2OH/dx2
-                 + c_OH * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
+        dOH/dt =  ( 1.0 / Pe_OH ) * d2OH/dx2 
+                 + z_H / ( abs(z_OH)*M_OH ) * ( dOH/dx * dφ/dx + OH * d2φ/dx2 )
                  + k_wb * H2O - k_wf * H * OH
 
-####   Initial conditions
+#### Initial conditions:
+        Na(0,x) = Na_0
+        Cl(0,x) = Cl_0
         H(0,x) = H_0
         OH(0,x) = OH_0
-        φ(0,x) = 0
 
-####   Boundary conditions
+#### Boundary conditions:
 
 Butler-Volmer equations have been replaced by a linear approximation.
 
-        H(t,0) = H_anode_rate * t + H_0
-        dH(t,n)/dx = 0
-        dOH(t,0)/dx = 0
-        OH(t,n) = OH_cathode_rate * t + OH_0
+        Na(t,0) = 0.0
+        Na(t,n) = 2.0 * Na_0
+        Cl(t,0) = 1.37 * Cl_0
+        Cl(t,n) = 0.0
+        H(t,0) = 1.25 * H_0
+        H(t,n) = H_0
+        OH(t,0) = OH_0
+        OH(t,n) = 1.25 * OH_0
         φ(t,0) = φ_0
-        φ(t,n) = 0
+        φ(t,x_max) = φ_1
         
 #### References 
 
@@ -79,8 +88,8 @@ P. Turjanski, N. Olaiz, P. Abou-Adal, C. Suárez 1 , M. Risk 1 , G. Marshall". E
 4) Run
     ```
         $ cd 1d-poission-nernst-planck
-        $ julia poisson-laplace-nernst-planck-neuralpde.jl
-        $ julia laplace-nernst-planck-neuralpde.jl
-        $ julia poisson-nernst-planck-finite-difference.jl
-        $ julia laplace-nernst-planck-finite-difference.jl
+        $ julia 1d-poisson-nernst-planck-adim-neuralpde.jl
+        $ julia 1d-laplace-nernst-planck-adim-neuralpde.jl
+        $ julia 1d-poisson-nernst-planck-adim-finite-difference.jl
+        $ julia 1d-laplace-nernst-planck-adim-finite-difference.jl
     ```
