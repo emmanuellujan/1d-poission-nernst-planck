@@ -24,12 +24,12 @@
 #        φ(t,n) = 0
 #
 #   How to run:
-#        julia nernst-planck-finite-difference.jl
+#        julia poisson-nernst-planck-finite-difference.jl
 #
 ################################################################################
 
 # Maximum time 
-time_max = 50 # s
+time_max = 50.0 # s
 
 # Delta t [s]
 dt = 5e-9 # s
@@ -50,25 +50,25 @@ n = floor(Int,x_max/dx)
 it_max = 1000
 
 # No. of iterations to print results
-it_print = floor(1/dt/20)
+it_print = floor(1.0/dt/20.0)
 
 # Electrochemical parameters
 H_anode_rate = 4.2 # mol m^-3 s^-1
-OH_cathode_rate = 5 # mol m^-3 s^-1
+OH_cathode_rate = 5.0 # mol m^-3 s^-1
 H_0 = 1e-4 # mol m^-3
 OH_0 = 1e-4 # mol m^-3
-φ_0 = 4 # V
-z_H = 1
+φ_0 = 4.0 # V
+z_H = 1.0
 D_H = 9.31e-9 # m^2 s^-1
-z_OH = -1
+z_OH = -1.0
 D_OH = 5.26e-9 # m^2 s^−1 
 F = 96485.3415 # A s mol^-1
 R = 8.31 # kg m^2 K^-1 mol^-1 s^-2
-T = 298 # K
+T = 298.0 # K
 σ_0 = 0.2 # S m^-1
 k_wf = 1.5e8 # m^3 mol^-1 s^-1
 k_wb = 2.7e-5 # s^-1
-H2O = 55500 # mol m^-3
+H2O = 55500.0 # mol m^-3
 c_H = z_H * D_H * F / (R * T) 
 c_OH = z_OH * D_OH * F / (R * T)
 epsilon = 78.5 # K 
