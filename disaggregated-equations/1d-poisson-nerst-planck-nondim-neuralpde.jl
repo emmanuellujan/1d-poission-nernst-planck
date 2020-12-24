@@ -1,19 +1,23 @@
-#################################################################################
+################################################################################
 #   This code solves a simplified 1D Poisson-Nernst-Planck system using NeuralPDE
 #
 #   Equations:
-#        d2Phi/dx2 =   ( 1.0 / Po_1 ) * ( z_Na * Na + z_Cl * Cl )
-#                    + ( 1.0 / Po_2 ) * ( z_H *  H + z_OH * OH )
-#        dNa/dt =  ( 1.0 / Pe_Na ) * d2Na/dx2 
-#                 + z_Na / ( abs(z_Na) * M_Na ) * ( dNa/dx * dPhi/dx + Na * d2Phi/dx2 )
-#        dCl/dt = ( 1.0 / Pe_Cl ) * d2Cl/dx2
-#                 + z_Cl / ( abs(z_Cl) * M_Cl ) * ( dCl/dx * dPhi/dx + Cl * d2Phi/dx2 )
-#        dH/dt =  ( 1.0 / Pe_H ) * d2H/dx2 
-#                 + z_H / ( abs(z_H) * M_H ) * ( dH/dx * dPhi/dx + H * d2Phi/dx2 )
-#                 + k_wb * H2O - k_wf * H * OH
-#        dOH/dt =  ( 1.0 / Pe_OH ) * d2OH/dx2 
-#                 + z_H / ( abs(z_OH)*M_OH ) * ( dOH/dx * dPhi/dx + OH * d2Phi/dx2 )
-#                 + k_wb * H2O - k_wf * H * OH
+#        d2Phi/dx2 =    ( 1.0 / Po_1 ) * ( z_Na^+ * Na^+ + z_Cl^- * Cl^- )
+#                     + ( 1.0 / Po_2 ) * ( z_H^+ * H^+ + z_OH^- * OH^- )
+#        dNa^+/dt =     ( 1.0 / Pe_Na^+ ) * d2Na^+/dx2 
+#                     + z_Na^+ / ( abs(z_Na^+) * M_Na^+ ) *
+#                     ( dNa^+/dx * dPhi/dx + Na^+ * d2Phi/dx2 )
+#        dCl^-/dt =     ( 1.0 / Pe_Cl^- ) * d2Cl^-/dx2
+#                     + z_Cl^- / ( abs(z_Cl^-) * M_Cl^- ) 
+#                     * ( dCl^-/dx * dPhi/dx + Cl^- * d2Phi/dx2 )
+#        dH^+/dt =      ( 1.0 / Pe_H^+ ) * d2H^+/dx2 
+#                     + z_H^+ / ( abs(z_H^+) * M_H^+ )
+#                     * ( dH^+/dx * dPhi/dx + H^+ * d2Phi/dx2 )
+#                     + k_wb * H2O - k_wf * H^+ * OH^-
+#        dOH^-/dt =     ( 1.0 / Pe_OH^- ) * d2OH^-/dx2 
+#                     + z_H^+ / ( abs(z_OH)*M_OH^- )
+#                     * ( dOH^-/dx * dPhi/dx + OH^- * d2Phi/dx2 )
+#                     + k_wb * H2O - k_wf * H^+ * OH^-
 #
 #   Initial conditions:
 #        Phi(0,x) = 0.0
@@ -23,8 +27,8 @@
 #        OH(0,x) = OH_0
 #
 #   Boundary conditions (simplified):
-#        Phi(t,0) = 0.0
-#        Phi(t,n) = Phi_0
+#        Phi(t,0) = Phi_0
+#        Phi(t,n) = 0.0
 #        Na(t,0) = 0.0
 #        Na(t,n) = 2.0 * Na_0
 #        Cl(t,0) = 1.37 * Cl_0
@@ -37,10 +41,15 @@
 #   How to run:
 #        julia 1d-poisson-nernst-planck-nondim-neuralpde.jl
 #
+#   TODO: include H^+ and OH^-
+#
+#
 #################################################################################
 
 using NeuralPDE, Flux, ModelingToolkit, GalacticOptim, Optim, DiffEqFlux
 using Quadrature, Cubature, Cuba
+
+# Parameters ###################################################################
 
 @parameters t,x
 @variables Phi(..)
@@ -50,68 +59,68 @@ using Quadrature, Cubature, Cuba
 @derivatives Dx'~x
 @derivatives Dxx''~x
 
-# Parameters
+t_ref = 1.0       # s
+x_ref = 0.4       # dm 
+C_ref_1 = 0.16    # mol/dm^3
+C_ref_2 = 1e-7    # mol/dm^3
+Phi_ref = 1.0     # V
 
-t_ref = 1.0 # s
-x_ref = 4.0 # cm
-C_ref_1 = 0.16 # M
-C_ref_2 = 1e-7 # M
-Phi_ref = 1.0 # V
+epsilon = 78.5    # K
+F = 96485.3415    # A s mol^-1
+R = 8.31          # kg m^2 K^-1 mol^-1 s^-2
+T = 298.0         # K
 
-z_Na = 1.0
-z_Cl = -1.0
-z_H = 1.0
-z_OH = -1.0
+z_Na = 1.0        # non-dim
+z_Cl = -1.0       # non-dim
+z_H = 1.0         # non-dim
+z_OH = -1.0       # non-dim
 
-D_Na = 0.89e-5 # cm^2 s^−1
-D_Cl = 1.36e-5 # cm^2 s^−1
-D_H = 6.25e-5 # cm^2 s^-1
-D_OH = 3.52e-5 # cm^2 s^−1 
+D_Na = 0.89e-7    # dm^2 s^−1
+D_Cl = 1.36e-7    # dm^2 s^−1
+D_H = 6.25e-7     # dm^2 s^-1
+D_OH =3.52e-7     # dm^2 s^−1
 
-u_Na = 4.5e-5 # cm^2 V^-1 s^-1
-u_Cl = 6.8e-5 # cm^2 V^-1 s^-1
-u_H = 3.24e-4 # cm^2 V^-1 s^-1
-u_OH = 1.8e-4 # cm^2 V^-1 s^-1
+u_Na = D_Na * abs(z_Na) * F / (R * T)
+u_Cl = D_Cl * abs(z_Cl) * F / (R * T)
+u_H = D_H * abs(z_H) * F / (R * T)
+u_OH = D_OH * abs(z_OH) * F / (R * T)
 
-t_max = 0.01 / t_ref # non-dim
-x_max = 4.0 / x_ref # non-dim 
-Na_0 = 0.16 / C_ref_1 # non-dim
-Cl_0 = 0.16 / C_ref_1 # non-dim
-H_0 = 1e-7 / C_ref_2 # non-dim
-OH_0 = 1e-7 / C_ref_2 # non-dim
-H2O_0 = 55.5 / C_ref_2 # non-dim
-Phi_0 = 4.0 / Phi_ref # non-dim
+t_max = 0.01 / t_ref    # non-dim
+x_max = 0.4 / x_ref     # non-dim
+Na_0 = 0.16 / C_ref_1   # non-dim
+Cl_0 = 0.16 / C_ref_1   # non-dim
+H_0 = 1e-7 / C_ref_2    # non-dim
+OH_0 = 1e-7 / C_ref_2   # non-dim
+H2O_0 = 55.5 / C_ref_2  # non-dim
+Phi_0 = 4.0 / Phi_ref   # non-dim
 
-k_wf = 1.5e11 # 2.4917e8 # M s
-k_wb = 2.7e-5 # s^-1 
-epsilon = 78.5 # K
-#F = 96485.3415 # A s mol^-1
-F = 96.4853415 # A s M^-1
+k_wf = 1.5e11           # dm^3 mol^-1 s^-1
+k_wb = 2.7e-5           # s^-1 
 
-Na_anode = 0.0 # nondim
-Na_cathode = 2.0 * Na_0 # nondim
-Cl_anode = 1.37 * Cl_0 # nondim
-Cl_cathode = 0.0 # nondim
-H_anode = 1.25 * H_0 # nondim
-H_cathode = H_0 # nondim
-OH_anode = OH_0 # nondim
-OH_cathode = 1.25 * OH_0 # nondim
+Na_anode = 0.0            # non-dim
+Na_cathode = 2.0 * Na_0   # non-dim
+Cl_anode = 1.37 * Cl_0    # non-dim
+Cl_cathode = 0.0          # non-dim
+H_anode = 1.25 * H_0      # non-dim
+H_cathode = H_0           # non-dim
+OH_anode = OH_0           # non-dim
+OH_cathode = 1.25 * OH_0  # non-dim
 
-Pe_Na = x_ref^2 / ( t_ref * D_Na )
-Pe_Cl = x_ref^2 / ( t_ref * D_Cl )
-Pe_H = x_ref^2 / ( t_ref * D_H )
-Pe_OH = x_ref^2 / ( t_ref * D_OH )
+Pe_Na = x_ref^2 / ( t_ref * D_Na )  # non-dim
+Pe_Cl = x_ref^2 / ( t_ref * D_Cl )  # non-dim
+Pe_H = x_ref^2 / ( t_ref * D_H )    # non-dim
+Pe_OH = x_ref^2 / ( t_ref * D_OH )  # non-dim
 
-M_Na = x_ref^2 / ( t_ref * Phi_ref * u_Na )
-M_Cl = x_ref^2 / ( t_ref * Phi_ref * u_Cl )
-M_H = x_ref^2 / ( t_ref * Phi_ref * u_H )
-M_OH = x_ref^2 / ( t_ref * Phi_ref * u_OH )
+M_Na = x_ref^2 / ( t_ref * Phi_ref * u_Na )  # non-dim
+M_Cl = x_ref^2 / ( t_ref * Phi_ref * u_Cl )  # non-dim
+M_H = x_ref^2 / ( t_ref * Phi_ref * u_H )    # non-dim
+M_OH = x_ref^2 / ( t_ref * Phi_ref * u_OH )  # non-dim
 
-Po_1 = (epsilon * Phi_ref) / (F * x_ref * C_ref_1)
-Po_2 = (epsilon * Phi_ref) / (F * x_ref * C_ref_2)
+Po_1 = (epsilon * Phi_ref) / (F * x_ref * C_ref_1)  # non-dim
+Po_2 = (epsilon * Phi_ref) / (F * x_ref * C_ref_2)  # non-dim
 
 
-# Equations, initial and boundary conditions
+# Equations, initial and boundary conditions ###################################
 
 eqs = [
 #        ( Dxx(Phi(t,x)) ~ ( 1.0 / Po_1 ) * ( z_Na * Na(t,x) + z_Cl * Cl(t,x) )
@@ -158,14 +167,12 @@ bcs = [
 
       ]
 
-# Space and time domains
+# Space and time domains #######################################################
 domains = [t ∈ IntervalDomain(0.0,t_max),
            x ∈ IntervalDomain(0.0,x_max)]
 
-# Discretization
+# Neural network, Discretization ###############################################
 dx = 1e-2 #, dt = 5e-9
-
-# Neural network
 dim = length(domains)
 output = length(eqs)
 neurons = 16
@@ -192,11 +199,13 @@ chain3 = FastChain( FastDense(dim,neurons,Flux.σ),
 
 strategy = GridTraining(dx=dx)
 #strategy = GridTraining(dx=[dt,dx])
-#strategy = QuadratureTraining(algorithm=HCubatureJL(),reltol= 1e-5,abstol=1e-5,maxiters=50000)
+#strategy = QuadratureTraining(algorithm=HCubatureJL(),
+#                              reltol= 1e-5,abstol=1e-5,maxiters=50000)
 #strategy = StochasticTraining(number_of_points = 100)
 
 discretization = PhysicsInformedNN([chain1,chain2,chain3],strategy=strategy)
-#discretization = PhysicsInformedNN([chain1,chain2,chain3,chain4,chain5],strategy=strategy)
+#discretization = PhysicsInformedNN([chain1,chain2,chain3,chain4,chain5],
+#                                   strategy=strategy)
 
 pde_system = PDESystem(eqs,bcs,domains,[t,x],[Phi,Na,Cl])
 #pde_system = PDESystem(eqs,bcs,domains,[t,x],[Phi,Na,Cl,H,OH])
@@ -211,7 +220,7 @@ res = GalacticOptim.solve(prob,Optim.BFGS();cb=cb,maxiters=5000)
 #res = GalacticOptim.solve(prob, ADAM(0.001), cb = cb, maxiters=5000)
 
 
-# Plots
+# Plots ########################################################################
 
 phi = discretization.phi
 initθ = discretization.initθ
@@ -227,27 +236,26 @@ Cl_predict = [ [ phi[3]([t,x],minimizers[3])[1] for x in xs] for t in ts_]
 #H_predict = [ [ phi[4]([t,x],minimizers[4])[1] for x in xs] for t in ts_] 
 #OH_predict = [ [ phi[5]([t,x],minimizers[5])[1] for x in xs] for t in ts_] 
 
-
 using Plots, LaTeXStrings
 p1 = plot(xs * x_ref, Phi_predict * Phi_ref,
-          xlabel = "cm", ylabel = "V",title = L"$\Phi$"
+          xlabel = "cm", ylabel = "V",title = L"$\Phi$",
           label=["0.01 s"]);
 savefig("Phi.svg")
 p2 = plot(xs * x_ref, Na_predict * C_ref_1, 
-          xlabel = "cm", ylabel = "M",title = L"$Na^+$"
+          xlabel = "cm", ylabel = "M",title = L"$Na^+$",
           label=["0.01 s"]);
 savefig("Na.svg")
 p3 = plot(xs * x_ref, Cl_predict * C_ref_1,
-          xlabel = "cm", ylabel = "M",title = L"$Cl^-$"
+          xlabel = "cm", ylabel = "M",title = L"$Cl^-$",
           label=["0.01 s"]);
 savefig("Cl.svg")
 #p4 = plot(xs, H_predict * C_ref_2,
-#          xlabel = "cm", ylabel = "M",title = L"$H^+$"
-#          label=["1 s","5 s","10 s"]);
+#          xlabel = "cm", ylabel = "M",title = L"$H^+$",
+#          label=["0.01 s"]);
 #savefig("H.svg")
 #p4 = plot(xs, OH_predict * C_ref_2,
-#          xlabel = "cm", ylabel = "M",title = L"$OH^-$"
-#          label=["1 s","5 s","10 s"]);
+#          xlabel = "cm", ylabel = "M",title = L"$OH^-$",
+#          label=["0.01 s"]);
 #savefig("OH.svg")
 
 
