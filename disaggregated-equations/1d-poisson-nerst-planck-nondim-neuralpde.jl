@@ -15,28 +15,28 @@
 #                     * ( dH^+/dx * dPhi/dx + H^+ * d2Phi/dx2 )
 #                     + k_wb * H2O - k_wf * H^+ * OH^-
 #        dOH^-/dt =     ( 1.0 / Pe_OH^- ) * d2OH^-/dx2 
-#                     + z_H^+ / ( abs(z_OH)*M_OH^- )
+#                     + z_H^+ / ( abs(z_OH^-)*M_OH^- )
 #                     * ( dOH^-/dx * dPhi/dx + OH^- * d2Phi/dx2 )
 #                     + k_wb * H2O - k_wf * H^+ * OH^-
 #
 #   Initial conditions:
 #        Phi(0,x) = 0.0
-#        Na(0,x) = Na_0
-#        Cl(0,x) = Cl_0
-#        H(0,x) = H_0
-#        OH(0,x) = OH_0
+#        Na^+(0,x) = Na^+_0
+#        Cl^-(0,x) = Cl^-_0
+#        H^+(0,x) = H^+_0
+#        OH^-(0,x) = OH^-_0
 #
 #   Boundary conditions (simplified):
 #        Phi(t,0) = Phi_0
 #        Phi(t,n) = 0.0
-#        Na(t,0) = 0.0
-#        Na(t,n) = 2.0 * Na_0
-#        Cl(t,0) = 1.37 * Cl_0
-#        Cl(t,n) = 0.0
-#        H(t,0) = 1.25 * H_0
-#        H(t,n) = H_0
-#        OH(t,0) = OH_0
-#        OH(t,n) = 1.25 * OH_0
+#        Na^+(t,0) = 0.0
+#        Na^+(t,n) = 2.0 * Na^+_0
+#        Cl^-(t,0) = 1.37 * Cl^-_0
+#        Cl^-(t,n) = 0.0
+#        H^+(t,0) = 1.25 * H^+_0
+#        H^+(t,n) = H^+_0
+#        OH^-(t,0) = OH^-_0
+#        OH^-(t,n) = 1.25 * OH^-_0
 #
 #   How to run:
 #        julia 1d-poisson-nernst-planck-nondim-neuralpde.jl
@@ -216,7 +216,7 @@ cb = function (p,l)
     return false
 end
 
-res = GalacticOptim.solve(prob,Optim.BFGS();cb=cb,maxiters=5000)
+res = GalacticOptim.solve(prob,Optim.BFGS();cb=cb,maxiters=30000)
 #res = GalacticOptim.solve(prob, ADAM(0.001), cb = cb, maxiters=5000)
 
 
