@@ -15,7 +15,7 @@
 #                     * ( dH^+/dx * dPhi/dx + H^+ * d2Phi/dx2 )
 #                     + k_wb * H2O - k_wf * H^+ * OH^-
 #        dOH^-/dt =     ( 1.0 / Pe_OH^- ) * d2OH^-/dx2 
-#                     + z_H^+ / ( abs(z_OH^-)*M_OH^- )
+#                     + z_OH^- / ( abs(z_OH^-))*M_OH^- )
 #                     * ( dOH^-/dx * dPhi/dx + OH^- * d2Phi/dx2 )
 #                     + k_wb * H2O - k_wf * H^+ * OH^-
 #
@@ -124,7 +124,7 @@ Po_2 = (epsilon * Phi_ref) / (F * x_ref * C_ref_2)  # non-dim
 
 eqs = [
 #        ( Dxx(Phi(t,x)) ~ ( 1.0 / Po_1 ) * ( z_Na * Na(t,x) + z_Cl * Cl(t,x) )
-#                          ( 1.0 / Po_2 ) * ( z_Na * H(t,x)  + z_Cl * OH(t,x) ) )
+#                          +( 1.0 / Po_2 ) * ( z_Na * H(t,x)  + z_Cl * OH(t,x) ) )
 #        ,
         ( Dxx(Phi(t,x)) ~ ( 1.0 / Po_1 ) * ( z_Na * Na(t,x) + z_Cl * Cl(t,x) ) )
         ,
