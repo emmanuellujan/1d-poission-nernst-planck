@@ -228,34 +228,33 @@ acum =  [0;accumulate(+, length.(initθ))]
 sep = [acum[i]+1 : acum[i+1] for i in 1:length(acum)-1]
 minimizers = [res.minimizer[s] for s in sep]
 
-ts,xs = [domain.domain.lower:dx:domain.domain.upper for domain in domains]
-ts_ = ts[1:10:size(ts)[1]]
-Phi_predict = [ [ phi[1]([t,x],minimizers[1])[1] for x in xs] for t in ts_] 
-Na_predict = [ [ phi[2]([t,x],minimizers[2])[1] for x in xs] for t in ts_] 
-Cl_predict = [ [ phi[3]([t,x],minimizers[3])[1] for x in xs] for t in ts_] 
-#H_predict = [ [ phi[4]([t,x],minimizers[4])[1] for x in xs] for t in ts_] 
-#OH_predict = [ [ phi[5]([t,x],minimizers[5])[1] for x in xs] for t in ts_] 
+dt = ( domain[1].upper - domains[1].lower ) / 5.0
+ts = domains[1].lower:dt:domain[1].domain.upper
+xs = domains[2].lower:dt:domain[2].domain.upper
+
+Phi_predict = [ [ phi[1]([t,x],minimizers[1])[1] for x in xs] for t in ts] 
+Na_predict = [ [ phi[2]([t,x],minimizers[2])[1] for x in xs] for t in ts] 
+Cl_predict = [ [ phi[3]([t,x],minimizers[3])[1] for x in xs] for t in ts] 
+#H_predict = [ [ phi[4]([t,x],minimizers[4])[1] for x in xs] for t in ts] 
+#OH_predict = [ [ phi[5]([t,x],minimizers[5])[1] for x in xs] for t in ts] 
 
 using Plots, LaTeXStrings
+
+label = [ "$t s" for t in ts ]
 p1 = plot(xs * x_ref, Phi_predict * Phi_ref,
-          xlabel = "cm", ylabel = "V",title = L"$\Phi$",
-          label=["0.01 s"]);
+          xlabel = "dm", ylabel = "V",title = L"$\Phi$",label=label);
 savefig("Phi.svg")
 p2 = plot(xs * x_ref, Na_predict * C_ref_1, 
-          xlabel = "cm", ylabel = "M",title = L"$Na^+$",
-          label=["0.01 s"]);
+          xlabel = "dm", ylabel = "M",title = L"$Na^+$",label=label);
 savefig("Na.svg")
 p3 = plot(xs * x_ref, Cl_predict * C_ref_1,
-          xlabel = "cm", ylabel = "M",title = L"$Cl^-$",
-          label=["0.01 s"]);
+          xlabel = "dm", ylabel = "M",title = L"$Cl^-$",label=label);
 savefig("Cl.svg")
 #p4 = plot(xs, H_predict * C_ref_2,
-#          xlabel = "cm", ylabel = "M",title = L"$H^+$",
-#          label=["0.01 s"]);
+#          xlabel = "dm", ylabel = "M",title = L"$H^+$",label=label);
 #savefig("H.svg")
 #p4 = plot(xs, OH_predict * C_ref_2,
-#          xlabel = "cm", ylabel = "M",title = L"$OH^-$",
-#          label=["0.01 s"]);
+#          xlabel = "dm", ylabel = "M",title = L"$OH^-$",label=label);
 #savefig("OH.svg")
 
 
