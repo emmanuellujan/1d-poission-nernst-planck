@@ -42,7 +42,7 @@ using Plots, LaTeXStrings
 
 @with_kw struct Params
     t_ref = 1.0       # s
-    x_ref = 0.4       # dm 
+    x_ref = 0.38      # dm 
     C_ref = 0.16      # mol/dm^3
     Phi_ref = 1.0     # V
 
@@ -61,7 +61,7 @@ using Plots, LaTeXStrings
     u_Cl = D_Cl * abs(z_Cl) * F / (R * T)
 
     t_max = 0.01 / t_ref    # non-dim
-    x_max = 0.4 / x_ref     # non-dim
+    x_max = 0.38 / x_ref    # non-dim
     Na_0 = 0.16 / C_ref     # non-dim
     Cl_0 = 0.16 / C_ref     # non-dim
     Phi_0 = 4.0 / Phi_ref   # non-dim
