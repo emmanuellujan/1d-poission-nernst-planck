@@ -23,6 +23,7 @@ The model is solved using NeuralPDE and the Finite Difference method.
 #### Boundary conditions:
 
 Butler-Volmer equations have been replaced by a linear approximation.
+
         Phi(t,0) = Phi_0
         Phi(t,n) = 0.0
         Na^+(t,0) = 0.0
