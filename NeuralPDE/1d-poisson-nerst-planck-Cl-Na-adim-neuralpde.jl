@@ -48,7 +48,7 @@ using Plots, LaTeXStrings
 
     epsilon = 78.5    # K
     F = 96485.3415    # A s mol^-1
-    R = 8.31          # kg m^2 K^-1 mol^-1 s^-2
+    R = 831.0         # kg dm^2 s^-2 K^-1 mol^-1 
     T = 298.0         # K
 
     z_Na = 1.0        # non-dim
@@ -65,9 +65,6 @@ using Plots, LaTeXStrings
     Na_0 = 0.16 / C_ref     # non-dim
     Cl_0 = 0.16 / C_ref     # non-dim
     Phi_0 = 4.0 / Phi_ref   # non-dim
-
-    k_wf = 1.5e11           # dm^3 mol^-1 s^-1
-    k_wb = 2.7e-5           # s^-1 
 
     Na_anode = 0.0            # non-dim
     Na_cathode = 2.0 * Na_0   # non-dim
