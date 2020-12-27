@@ -30,15 +30,13 @@
 #
 #        $ julia
 #        julia> include("1d-poisson-nerst-planck-Cl-Na-adim-neuralpde.jl")
-#        julia> res,losses,discretization,pars = solve_PNP(strategy)
-#        julia> plot_PNP(res,losses,discretization,pars)
-#
+#        julia> res, loss, discretization, pars = solve_PNP()
+#        julia> plot_PNP(res, loss, discretization,pars)
 #
 #################################################################################
 
 using NeuralPDE, Flux, ModelingToolkit, GalacticOptim, Optim, DiffEqFlux
-using Quadrature, Cubature, Cuba
-using QuasiMonteCarlo
+using Quadrature, Cubature, Cuba, QuasiMonteCarlo
 using Parameters
 using Plots, LaTeXStrings
 
@@ -102,7 +100,8 @@ function solve_PNP(strategy)
     # Equations, initial and boundary conditions ###############################
 
     eqs = [
-            ( Dxx(Phi(t,x)) ~ ( 1.0 / pars.Po_1 ) * ( pars.z_Na * Na(t,x) + pars.z_Cl * Cl(t,x) ) )
+            ( Dxx(Phi(t,x)) ~ ( 1.0 / pars.Po_1 ) *
+                              ( pars.z_Na * Na(t,x) + pars.z_Cl * Cl(t,x) ) )
             ,
             ( Dt(Na(t,x)) ~ ( 1.0 / pars.Pe_Na ) * Dxx(Na(t,x)) 
                           +   pars.z_Na / ( abs(pars.z_Na) * pars.M_Na ) 
@@ -113,7 +112,7 @@ function solve_PNP(strategy)
                           * ( Dx(Cl(t,x)) * Dx(Phi(t,x)) + Cl(t,x) * Dxx(Phi(t,x)) ) )
           ]
 
-    bcs = [ 
+    bcs = [
             Phi(t,0.0) ~ pars.Phi_0,
             Phi(t,pars.x_max) ~ 0.0
             ,
@@ -128,47 +127,48 @@ function solve_PNP(strategy)
 
     # Space and time domains ###################################################
 
-    domains = [t ∈ IntervalDomain(0.0,pars.t_max),
-               x ∈ IntervalDomain(0.0,pars.x_max)]
+    domains = [
+                t ∈ IntervalDomain(0.0, pars.t_max),
+                x ∈ IntervalDomain(0.0, pars.x_max)
+              ]
 
     # Neural network, Discretization ###########################################
 
     dim = length(domains)
     output = length(eqs)
     neurons = 16
-    chain1 = FastChain( FastDense(dim,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,1))
-    chain2 = FastChain( FastDense(dim,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,1))
-    chain3 = FastChain( FastDense(dim,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,neurons,Flux.σ),
-                        FastDense(neurons,1))
+    chain1 = FastChain( FastDense(dim, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, 1))
+    chain2 = FastChain( FastDense(dim, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, 1))
+    chain3 = FastChain( FastDense(dim, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, neurons, Flux.σ),
+                        FastDense(neurons, 1))
 
-    discretization = PhysicsInformedNN([chain1,chain2,chain3],strategy=strategy)
+    discretization = PhysicsInformedNN([chain1, chain2, chain3], strategy=strategy)
 
-    pde_system = PDESystem(eqs,bcs,domains,[t,x],[Phi,Na,Cl])
-    prob = discretize(pde_system,discretization)
+    pde_system = PDESystem(eqs, bcs, domains, [t,x], [Phi, Na, Cl])
+    prob = discretize(pde_system, discretization)
 
     loss = []
-    cb = function (p,l)
+    cb = function (p, l)
         println("Current loss is: $l")
         push!(loss, l)
         return false
     end
 
-    #res = GalacticOptim.solve(prob,Optim.BFGS();cb=cb,maxiters=30000)
-    res = GalacticOptim.solve(prob,Optim.BFGS();cb=cb,maxiters=100)
+    res = GalacticOptim.solve(prob, Optim.BFGS();cb=cb, maxiters=30000)
 
-    return res,loss,discretization,pars
+    return res, loss, discretization, pars
 
 end
 
-function plot_PNP(res,loss,discretization,pars)
+function plot_PNP(res, loss, discretization, pars)
 
     discretization = discretization
     t_max = pars.t_max
