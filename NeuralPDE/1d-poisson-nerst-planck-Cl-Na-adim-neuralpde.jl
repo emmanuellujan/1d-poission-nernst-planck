@@ -31,7 +31,7 @@
 #        $ julia
 #        julia> include("1d-poisson-nerst-planck-Cl-Na-adim-neuralpde.jl")
 #        julia> res, loss, discretization, pars = solve_PNP()
-#        julia> plot_PNP(res, loss, discretization,pars)
+#        julia> plot_PNP(res, loss, discretization, pars)
 #
 #################################################################################
 
@@ -192,7 +192,7 @@ function plot_PNP(res, loss, discretization, pars)
     Na_predict  = [ [ phi[2]([t,x],minimizers[2])[1] for x in xs ] for t in ts ]
     Cl_predict  = [ [ phi[3]([t,x],minimizers[3])[1] for x in xs ] for t in ts ]
     
-    labels = [ "$t s" for t in ts ]
+    labels = permutedims([ "$t s" for t in ts ])
     p1 = plot(xs * x_ref, Phi_predict * Phi_ref,
               xlabel = "dm", ylabel = "V",title = L"$\Phi$",labels=labels);
     savefig("Phi.svg")
