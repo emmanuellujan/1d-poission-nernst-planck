@@ -84,7 +84,7 @@ end
 # Electrochemical parameters
 
 t_ref = 1.0       # s
-x_ref = 1.0       # dm 
+x_ref = 0.38       # dm 
 C_ref = 0.16      # mol/dm^3
 Phi_ref = 1.0     # V
 
@@ -106,7 +106,7 @@ t_max = 0.01 / t_ref    # non-dim
 x_max = 0.38 / x_ref    # non-dim
 Na_0 = 0.16 / C_ref     # non-dim
 Cl_0 = 0.16 / C_ref     # non-dim
-Phi_0 = 20.0 / Phi_ref  # non-dim
+Phi_0 = 4.0 / Phi_ref  # non-dim
 
 Na_anode = 0.0            # non-dim
 Na_cathode = 2.0 * Na_0   # non-dim
@@ -127,13 +127,13 @@ c_Cl = z_Cl / ( abs(z_Cl) * M_Cl )  # non-dim
 
 
 # Delta t [s]
-dt = 1e-4 # 1e-2 # s
+dt = 1e-5 # s
 
 # Time iterations
 time_it = floor(Int,t_max/dt)
 
 # No. of spatial domain nodes
-n = 300 #floor(Int,x_max/dx)
+n = 100 #floor(Int,x_max/dx)
 
 # Delta x
 dx = x_max / ( n - 1.0 ) # m
